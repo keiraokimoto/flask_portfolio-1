@@ -77,17 +77,17 @@ class User(db.Model):
     _name = db.Column(db.String(255), unique=False, nullable=False)
     _uid = db.Column(db.String(255), unique=True, nullable=False)
     _password = db.Column(db.String(255), unique=False, nullable=False)
-    _dob = db.Column(db.Date)
+   # _food = db.Column(db.String(255), unique=False, nullable=False)
 
     # Defines a relationship between User record and Notes table, one-to-many (one user to many notes)
     posts = db.relationship("Post", cascade='all, delete', backref='users', lazy=True)
 
     # constructor of a User object, initializes the instance variables within object (self)
-    def __init__(self, name, uid, password="123qwerty", dob=date.today()):
+    def __init__(self, name, uid, password):
         self._name = name    # variables with self prefix become part of the object, 
         self._uid = uid
         self.set_password(password)
-        self._dob = dob
+        #self._food = food
 
     # a name getter method, extracts name from object
     @property
@@ -117,6 +117,7 @@ class User(db.Model):
     def password(self):
         return self._password[0:10] + "..." # because of security only show 1st characters
 
+
     # update password, this is conventional setter
     def set_password(self, password):
         """Create a hashed password."""
@@ -128,21 +129,13 @@ class User(db.Model):
         result = check_password_hash(self._password, password)
         return result
     
-    # dob property is returned as string, to avoid unfriendly outcomes
-    @property
-    def dob(self):
-        dob_string = self._dob.strftime('%m-%d-%Y')
-        return dob_string
-    
-    # dob should be have verification for type date
-    @dob.setter
-    def dob(self, dob):
-        self._dob = dob
-    
-    @property
-    def age(self):
-        today = date.today()
-        return today.year - self._dob.year - ((today.month, today.day) < (self._dob.month, self._dob.day))
+    # output content using str(object) in human readable form, uses getter
+    def __str__(self):
+        return f'name: "{self.name}", id: "{self.uid}", psw: "{self.password}"'
+
+    # output command to recreate the object, uses attribute directly
+    def __repr__(self):
+        return f'Person(name={self._name}, uid={self._uid}, password={self._password})'
     
     # output content using str(object) in human readable form, uses getter
     # output content using json dumps, this is ready for API response
@@ -168,8 +161,7 @@ class User(db.Model):
             "id": self.id,
             "name": self.name,
             "uid": self.uid,
-            "dob": self.dob,
-            "age": self.age,
+            #"age": self.age,
             "posts": [post.read() for post in self.posts]
         }
 
@@ -202,12 +194,12 @@ def initUsers():
     """Create database and tables"""
     db.create_all()
     """Tester data for table"""
-    u1 = User(name='Thomas Edison', uid='toby', password='123toby', dob=date(1847, 2, 11))
-    u2 = User(name='Nicholas Tesla', uid='niko', password='123niko')
-    u3 = User(name='Alexander Graham Bell', uid='lex', password='123lex')
-    u4 = User(name='Eli Whitney', uid='whit', password='123whit')
-    u5 = User(name='John Mortensen', uid='jm1021', dob=date(1959, 10, 21))
-
+    u1 = User(name='Tsukasa Suou', uid='kasa', password='helpMe')
+    u2 = User(name='Leo Tsukinaga', uid='ousama', password='izumiMyLove')
+    u3 = User(name='Izumi Sena', uid='sena', password='makotoForever')
+    u4 = User(name='Arashi Narukami', uid='naruchan', password='arashi')
+    u5 = User(name='Ritsu Sakuma', uid='kuma', password='maoIsara')
+    # put user objects in list for convenience
     users = [u1, u2, u3, u4, u5]
 
     """Builds sample user/note(s) data"""
